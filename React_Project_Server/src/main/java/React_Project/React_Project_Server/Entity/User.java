@@ -25,10 +25,6 @@ public class User {
     // User의 비밀번호
     private String password;
 
-    // 비밀번호 확인은 DB에 저장할 필요 X => @Transient
-    @Transient
-    private String password_check;
-
     // User의 닉네임
     private String nickname;
 

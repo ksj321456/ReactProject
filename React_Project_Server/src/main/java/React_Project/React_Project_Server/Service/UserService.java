@@ -25,20 +25,23 @@ public class UserService {
 
 
     public boolean signUp(SignUpUserDTO signUpUserDTO) {
+        System.out.println("서비스 회원가입 시작");
         // 아이디가 DB에 있는지 확인
         Optional<User> existingUser = userRepository.findByUserId(signUpUserDTO.getUserId());
 
         if (existingUser.isPresent()) {
+            System.out.println("서비스 회원가입 실패");
             return false;
         }
 
         signUpUserDTO.setBalance(500000);
         User user = User.builder().userId(signUpUserDTO.getUserId())
-                        .password(signUpUserDTO.getPassword()).password_check(signUpUserDTO.getPassword_check())
+                        .password(signUpUserDTO.getPassword())
                         .email(signUpUserDTO.getEmail()).nickname(signUpUserDTO.getNickname()).name(signUpUserDTO.getName())
                 .balance(signUpUserDTO.getBalance())
                 .build();
         userRepository.save(user);
+        System.out.println("서비스 회원가입 성공");
         return true;
     }
 

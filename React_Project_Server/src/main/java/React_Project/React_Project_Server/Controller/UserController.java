@@ -28,6 +28,7 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@RequestBody @Valid SignUpUserDTO signUpUserDTO, Errors errors) {
+        System.out.println("컨트롤러 회원가입");
 
         // 유효성 검사를 통과하지 못한다면
         if (errors.hasErrors()) {
@@ -36,8 +37,12 @@ public class UserController {
             return ResponseEntity.badRequest().body(map);
         }
         // 유효성 검사 통과 후 회원정보 DB에 저장 후 OK 코드 반환
-        userService.signUp(signUpUserDTO);
-        return ResponseEntity.ok("Success");
+        if (userService.signUp(signUpUserDTO)) {
+            System.out.println("컨트롤러 회원가입 성공");
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+        System.out.println("컨트롤러 회원가입 실패");
+        return new ResponseEntity<>(HttpStatus.CONFLICT);
     }
 
     @PostMapping("/login")
