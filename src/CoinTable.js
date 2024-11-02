@@ -8,9 +8,9 @@ const CoinTable = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get("https://api.coinpaprika.com/v1/tickers?quotes=KRW");
-        setData(response.data.slice(0, 100)); // 상위 100개의 데이터만 설정
+        setData(response.data.slice(0, 100));
       } catch (error) {
-        console.error("Error fetching data:", error);
+        alert("데이터 출력 오류")
       }
     };
 
