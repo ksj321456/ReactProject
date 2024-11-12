@@ -34,7 +34,7 @@ public class UserService {
             return false;
         }
 
-        signUpUserDTO.setBalance(500000);
+        signUpUserDTO.setBalance(100000000);
         User user = User.builder()
                         .password(signUpUserDTO.getPassword())
                         .email(signUpUserDTO.getEmail()).nickname(signUpUserDTO.getNickname()).name(signUpUserDTO.getName())
