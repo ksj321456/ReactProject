@@ -20,5 +20,5 @@ public class CoinBuySaleDTO {
 
     private boolean buy;        // true이면 매수한 것 false이면 매도한 것.
 
-    private String userId;
+    private String userId;      // 클라이언트에서 userId 넘겨주기
 }
