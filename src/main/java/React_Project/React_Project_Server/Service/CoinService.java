@@ -1,5 +1,6 @@
 package React_Project.React_Project_Server.Service;
 
+import React_Project.React_Project_Server.DTO.CoinBuySaleDTO;
 import React_Project.React_Project_Server.Entity.Coin;
 import React_Project.React_Project_Server.Entity.User;
 import React_Project.React_Project_Server.Repository.CoinRepository;
@@ -30,5 +31,28 @@ public class CoinService {
 
         User user = userOptional.get();
         return coinRepository.findByUser(user);
+    }
+
+    public boolean buyCoins(CoinBuySaleDTO coinBuySaleDTO) {
+
+        Optional<User> userOptional = userRepository.findByUserId(coinBuySaleDTO.getUserId());
+        if (userOptional.isEmpty()) return true;
+
+        User user = userOptional.get();
+
+        Coin coin = Coin.builder().coinName(coinBuySaleDTO.getCoinName())
+                .coinPrice(coinBuySaleDTO.getCoinPrice())
+                .coinCount(coinBuySaleDTO.getCoinCount())
+                .buy(coinBuySaleDTO.isBuy())
+                .user(user)
+                .build();
+
+        try {
+            coinRepository.save(coin);
+        } catch (Exception e) {
+            return false;
+        }
+
+        return true;
     }
 }
