@@ -24,10 +24,10 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
-    private final String SESSION_ID = "LOGIN_ID";
+    private final String USER = "USER";
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signUp(@RequestBody @Valid SignUpUserDTO signUpUserDTO, Errors errors) {
+    public ResponseEntity<?> signUp(@RequestBody @Valid SignUpUserDTO signUpUserDTO, Errors errors, HttpServletRequest request) {
         System.out.println("컨트롤러 회원가입");
 
         // 유효성 검사를 통과하지 못한다면
@@ -39,6 +39,12 @@ public class UserController {
         // 유효성 검사 통과 후 회원정보 DB에 저장 후 OK 코드 반환
         if (userService.signUp(signUpUserDTO)) {
             System.out.println("컨트롤러 회원가입 성공");
+
+            // 회원가입 성공 후 userId 세션에 저장
+            // 세션 생성
+            HttpSession session = request.getSession(true);
+            // 세션에 값 넣기
+            session.setAttribute(signUpUserDTO.getUserId(), USER);
             return new ResponseEntity<>(HttpStatus.OK);
         }
         System.out.println("컨트롤러 회원가입 실패");
@@ -47,6 +53,10 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<?> logIn(@RequestBody @Valid LogInUserDTO logInUserDTO, Errors errors, HttpServletRequest request) {
+
+        // 이미 세션에 등록되어 있다면 바로 로그인 처리
+        HttpSession session = request.getSession(false);
+        if (session.getAttribute(logInUserDTO.getUserId()) == USER) return new ResponseEntity<>(HttpStatus.OK);
 
         // 로그인 시 유효성 검사 실패했을 때
         if (errors.hasErrors()) {
@@ -63,8 +73,10 @@ public class UserController {
 
         // Service layer에서 데이터를 받아왔을 경우 -> 세션 생성
         // 처음 로그인이므로 빈 값의 session 생성, session은 key, value 값
-        HttpSession session = request.getSession();
-        session.setAttribute(SESSION_ID, user.getUserId());
+        session = request.getSession();
+
+        // key 값으로 userId, value 값으로 USER
+        session.setAttribute(user.getUserId(), USER);
         return new ResponseEntity(HttpStatus.OK);
     }
 
