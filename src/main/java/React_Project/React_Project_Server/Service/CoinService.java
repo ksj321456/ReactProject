@@ -40,6 +40,7 @@ public class CoinService {
 
         User user = userOptional.get();
 
+        // 코인 매매기록 저장
         Coin coin = Coin.builder().coinName(coinBuySaleDTO.getCoinName())
                 .coinPrice(coinBuySaleDTO.getCoinPrice())
                 .coinCount(coinBuySaleDTO.getCoinCount())
@@ -47,12 +48,22 @@ public class CoinService {
                 .user(user)
                 .build();
 
+        // 코인 매매하고 남은 돈을 새로 저장해야함
+        double balance = user.getBalance() - (coinBuySaleDTO.getCoinCount() * coinBuySaleDTO.getCoinPrice());
+
+        user.setBalance(balance);
+
         try {
             coinRepository.save(coin);
+            userRepository.save(user);
         } catch (Exception e) {
             return false;
         }
 
         return true;
     }
+
+//    public boolean sellCoins(CoinBuySaleDTO coinBuySaleDTO) {
+//
+//    }
 }

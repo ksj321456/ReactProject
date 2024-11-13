@@ -24,25 +24,27 @@ public class UserService {
     private final UserRepository userRepository;
 
 
-    public boolean signUp(SignUpUserDTO signUpUserDTO) {
+    // 회원가입 실패 => null 반환, 회원가입 성공 => user 객체 반환
+    public User signUp(SignUpUserDTO signUpUserDTO) {
         System.out.println("서비스 회원가입 시작");
         // 아이디가 DB에 있는지 확인
         Optional<User> existingUser = userRepository.findByUserId(signUpUserDTO.getUserId());
 
         if (existingUser.isPresent()) {
             System.out.println("서비스 회원가입 실패");
-            return false;
+            return null;
         }
 
         signUpUserDTO.setBalance(100000000);
         User user = User.builder()
+                .userId(signUpUserDTO.getUserId())
                         .password(signUpUserDTO.getPassword())
                         .email(signUpUserDTO.getEmail()).nickname(signUpUserDTO.getNickname()).name(signUpUserDTO.getName())
                 .balance(signUpUserDTO.getBalance())
                 .build();
         userRepository.save(user);
         System.out.println("서비스 회원가입 성공");
-        return true;
+        return user;
     }
 
     // 회원가입 시 에러 필드값과 메세지를 저장하는 map을 반환하는 Service
@@ -62,6 +64,12 @@ public class UserService {
             map.put(error.getField(), error.getDefaultMessage());
         }
         return map;
+    }
+
+    public User getByUserId(String userId) {
+        Optional<User> userOptional = userRepository.findByUserId(userId);
+        if (userOptional.isEmpty()) return null;
+        return userOptional.get();
     }
 
     public User logIn(LogInUserDTO logInUserDTO) {

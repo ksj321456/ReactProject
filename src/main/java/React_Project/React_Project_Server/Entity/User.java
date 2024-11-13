@@ -15,6 +15,9 @@ import java.util.List;
 @AllArgsConstructor
 public class User {
     @Id     // 기본키 지정
+    @GeneratedValue(strategy =  GenerationType.IDENTITY)
+    private Long id;
+
     private String userId;    // User의 아이디
 
     // User의 이름
