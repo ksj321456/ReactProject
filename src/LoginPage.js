@@ -16,9 +16,13 @@ function LoginPage() {
 
         try {
             const response = await axios.post('http://localhost:8081/login', { userId, password });
-            if (response.data.success) {
+            if (response.status === 200) {
                 localStorage.setItem('token', response.data.token); // Store token for authentication
-                navigate('/'); // Redirect to homepage
+                navigate('/main', {state: {
+                    "userId": userId,
+                    "nickname": response.data.nickname,
+                    "balance": response.data.balance
+                }})
             } else {
                 setError('Invalid login credentials');
             }

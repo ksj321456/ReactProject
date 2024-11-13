@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import RefreshButton from './RefreshButton'; // RefreshButton import
+import { useLocation } from "react-router-dom";
+import UserInfo from "./UserInfo";
 
 const CoinTable = () => {
   const [data, setData] = useState([]);
   const [isRankAsc, setIsRankAsc] = useState(true); // 정렬 상태를 관리하는 상태 변수
+  const location = useLocation();
+  const userData = {...location.state};
 
   useEffect(() => {
     fetchData(); // 컴포넌트가 마운트될 때 데이터 가져오기
@@ -51,6 +55,7 @@ const CoinTable = () => {
   return (
     <div>
       <h1>100개의 코인 테이블 (KRW)</h1>
+      <UserInfo userId={userData.userId} nickname={userData.nickname} balance={userData.balance} />
       <RefreshButton onClick={handleReload} />
       <table border="1">
         <thead>
@@ -76,7 +81,7 @@ const CoinTable = () => {
               <td>{formatNumber(crypto.quotes.KRW.market_cap)}</td>
               <td
                 style={{
-                  color: crypto.quotes.KRW.percent_change_24h > 0 ? "skyblue" : "red",
+                  color: crypto.quotes.KRW.percent_change_24h > 0 ? "red" : "skyblue",
                 }}
               >
                 {crypto.quotes.KRW.percent_change_24h.toFixed(2)}%

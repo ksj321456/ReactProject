@@ -59,9 +59,14 @@ function RegisterPage() {
         const user = { name, userId, password, nickname, email };
 
         try {
-            const response = await axios.post('http://localhost:8081/', user);
+            const response = await axios.post('http://localhost:8081/signup', user);
             alert('회원가입 성공: ' + response.data.nickname);
-            window.location.reload();
+            setName(user.userId);
+            navigate('/main', {state: {
+                "userId": userId,
+                "nickname": nickname,
+                "balance": response.data.balance
+            }});
         } catch (error) {
             console.error('회원가입 오류:', error);
             alert('회원가입 실패');
