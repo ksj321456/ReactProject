@@ -26,16 +26,15 @@ public class UserService {
 
     // 회원가입 실패 => null 반환, 회원가입 성공 => user 객체 반환
     public User signUp(SignUpUserDTO signUpUserDTO) {
-        System.out.println("서비스 회원가입 시작");
         // 아이디가 DB에 있는지 확인
         Optional<User> existingUser = userRepository.findByUserId(signUpUserDTO.getUserId());
 
         if (existingUser.isPresent()) {
-            System.out.println("서비스 회원가입 실패");
             return null;
         }
 
-        signUpUserDTO.setBalance(100000000);
+        // 회원가입 시 User에게 5억 할당
+        signUpUserDTO.setBalance(500000000);
         User user = User.builder()
                 .userId(signUpUserDTO.getUserId())
                         .password(signUpUserDTO.getPassword())
@@ -43,7 +42,6 @@ public class UserService {
                 .balance(signUpUserDTO.getBalance())
                 .build();
         userRepository.save(user);
-        System.out.println("서비스 회원가입 성공");
         return user;
     }
 

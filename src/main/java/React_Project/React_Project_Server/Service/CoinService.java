@@ -30,13 +30,14 @@ public class CoinService {
         if (userOptional.isEmpty()) return Collections.emptyList();
 
         User user = userOptional.get();
-        return coinRepository.findByUser(user);
+        List<Coin> coinList = coinRepository.findByUser(user);
+        return coinList;
     }
 
-    public boolean buyCoins(CoinBuySaleDTO coinBuySaleDTO) {
+    public User buyCoins(CoinBuySaleDTO coinBuySaleDTO) {
 
         Optional<User> userOptional = userRepository.findByUserId(coinBuySaleDTO.getUserId());
-        if (userOptional.isEmpty()) return true;
+        if (userOptional.isEmpty()) return null;
 
         User user = userOptional.get();
 
@@ -51,16 +52,21 @@ public class CoinService {
         // 코인 매매하고 남은 돈을 새로 저장해야함
         double balance = user.getBalance() - (coinBuySaleDTO.getCoinCount() * coinBuySaleDTO.getCoinPrice());
 
+        // 돈이 부족할 경우
+        if (balance < 0) {
+            return null;
+        }
+
         user.setBalance(balance);
 
         try {
             coinRepository.save(coin);
             userRepository.save(user);
         } catch (Exception e) {
-            return false;
+            return null;
         }
 
-        return true;
+        return user;
     }
 
 //    public boolean sellCoins(CoinBuySaleDTO coinBuySaleDTO) {

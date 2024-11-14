@@ -31,8 +31,11 @@ public class CoinController {
     // 반환값으로 User 정보를 던져줌 => 업데이트된 User의 정보를 클라이언트에서 반환하기 위해
     @PostMapping("/buyCoins")
     public ResponseEntity<?> buyCoins(@RequestBody CoinBuySaleDTO coinBuySaleDTO) {
-        if (coinService.buyCoins(coinBuySaleDTO)) return new ResponseEntity<>(HttpStatus.OK);
-        return new ResponseEntity<>(HttpStatus.CONFLICT);
+        User user = coinService.buyCoins(coinBuySaleDTO);
+        if (user == null) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        return ResponseEntity.ok().body(user);
     }
 
     // 매도 버튼 요청이 왔을 때 처리

@@ -25,6 +25,7 @@ public class Coin {
     private boolean buy;        // true이면 매수한 것 false이면 매도한 것.
 
     @ManyToOne
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "userId")        // 실제 Coin 테이블에는 userId라는 속성으로 User 테이블의 기본키 참조하는 외래키
+    // @JoinColumn으로 중간 테이블 생성 X
     private User user;
 }

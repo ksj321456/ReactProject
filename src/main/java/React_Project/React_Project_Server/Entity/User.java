@@ -35,6 +35,7 @@ public class User {
     // 계좌 잔액
     private double balance;
 
+    // @mappedBy 설정으로 중간 테이블 생성 X
     @OneToMany(mappedBy = "user")
     private List<Coin> coinList;
 }

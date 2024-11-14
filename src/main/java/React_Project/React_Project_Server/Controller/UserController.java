@@ -28,11 +28,9 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@RequestBody @Valid SignUpUserDTO signUpUserDTO, Errors errors, HttpServletRequest request) {
-        System.out.println("컨트롤러 회원가입");
 
         // 유효성 검사를 통과하지 못한다면
         if (errors.hasErrors()) {
-            System.out.println("유효성 검사 오류: " + errors.getAllErrors());
             Map<String, String> map = userService.signUpErrorHandling(errors);
             return ResponseEntity.badRequest().body(map);
         }
@@ -41,7 +39,6 @@ public class UserController {
         // 유효성 검사 통과 후 회원정보 DB에 저장 후 OK 코드 반환
         // 반환받은 user 객체가 null이 아니라면
         if (user != null) {
-            System.out.println("컨트롤러 회원가입 성공");
 
             // 회원가입 성공 후 userId 세션에 저장
             // 세션 생성
@@ -51,7 +48,6 @@ public class UserController {
             // OK 상태코드와 user 객체 클라이언트에 반환
             return ResponseEntity.ok().body(user);
         }
-        System.out.println("컨트롤러 회원가입 실패");
         // 회원가입 실패 시 400 상태 코드와 body에 null값 반환
         return ResponseEntity.badRequest().body(null);
     }
@@ -89,6 +85,15 @@ public class UserController {
         // key 값으로 userId, value 값으로 USER
         session.setAttribute(user.getUserId(), USER);
 
+        return ResponseEntity.ok().body(user);
+    }
+
+    @GetMapping("/main")
+    public ResponseEntity<?> showUserData(@RequestParam(name = "userId") String userId) {
+        User user = userService.getByUserId(userId);
+        if (user == null) {
+            return ResponseEntity.badRequest().body(null);
+        }
         return ResponseEntity.ok().body(user);
     }
 
