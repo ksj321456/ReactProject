@@ -1,62 +1,83 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import RefreshButton from './RefreshButton'; // RefreshButton import
+import RefreshButton from './RefreshButton';
 import { useLocation } from "react-router-dom";
 import UserInfo from "./UserInfo";
 
 const CoinTable = () => {
   const [data, setData] = useState([]);
-  const [isRankAsc, setIsRankAsc] = useState(true); // 정렬 상태를 관리하는 상태 변수
+  const [isRankAsc, setIsRankAsc] = useState(true);
+  const [isPriceAsc, setIsPriceAsc] = useState(true);
+  const [isMarketCapAsc, setIsMarketCapAsc] = useState(true);
+  const [isPercentChangeAsc, setIsPercentChangeAsc] = useState(true);
+  const [isVolumeAsc, setIsVolumeAsc] = useState(true);
+
   const location = useLocation();
-  const userData = {...location.state};
+  const userData = { ...location.state };
+  const [userId, setUserID] = useState(userData.userId);
+  const [nickname, setNickname] = useState(userData.nickname);
+  const [balance, setBalance] = useState(userData.balance);
 
   useEffect(() => {
-    fetchData(); // 컴포넌트가 마운트될 때 데이터 가져오기
+    fetchData();
+    fetchUserData();
   }, []);
 
-  // 데이터 가져오는 함수
   const fetchData = async () => {
     try {
       const response = await axios.get("https://api.coinpaprika.com/v1/tickers?quotes=KRW");
       setData(response.data.slice(0, 100));
+      alert(`코인 데이터를 가져왔습니다.`)
     } catch (error) {
       alert("데이터 출력 오류");
     }
   };
 
-  // 숫자를 단위로 줄이는 함수
-  const formatNumber = (number) => {
-    if (number >= 1_000_000_000_000) {
-      return (number / 1_000_000_000_000).toFixed(2) + "조";
-    } else if (number >= 1_000_000_000) {
-      return (number / 1_000_000_000).toFixed(2) + "억";
-    } else if (number >= 1_000_000) {
-      return (number / 1_000_000).toFixed(2) + "백만";
-    } else {
-      return number.toLocaleString();
+  const fetchUserData = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8081/main?userId=${userId}`);
+      if (response.status === 200) {
+        setUserID(response.data.userId);
+        setNickname(response.data.nickname);
+        setBalance(response.data.balance);
+        console.log(`response data: ${response.data}`);
+      } else {
+        alert("서버 전송 오류");
+      }
+    } catch (error) {
+      alert("서버 전송 오류");
+      console.log(error);
     }
   };
 
-  // 순위 열을 클릭할 때 데이터를 정렬하는 함수
-  const handleSortRank = () => {
-    const sortedData = [...data].sort((a, b) =>
-      isRankAsc ? b.rank - a.rank : a.rank - b.rank
-    );
-    setData(sortedData);
-    setIsRankAsc(!isRankAsc); // 정렬 방향을 토글
+  const formatNumber = (number) => {
+    if (number >= 1_000_000_000_000) return (number / 1_000_000_000_000).toFixed(2) + "조";
+    if (number >= 1_000_000_000) return (number / 1_000_000_000).toFixed(2) + "억";
+    if (number >= 1_000_000) return (number / 1_000_000).toFixed(2) + "백만";
+    return number.toLocaleString();
   };
 
-  // 새로고침 핸들러
-  const handleReload = () => {
-    fetchData();
-    alert("코인 데이터를 다시 가져왔습니다.")
+  const handleSort = (key, isAsc, setIsAsc) => {
+    const sortedData = [...data].sort((a, b) => {
+      const aValue = key.split('.').reduce((o, i) => o[i], a);
+      const bValue = key.split('.').reduce((o, i) => o[i], b);
+      return isAsc ? bValue - aValue : aValue - bValue;
+    });
+    setData(sortedData);
+    setIsAsc(!isAsc);
   };
+
+  const handleSortRank = () => handleSort("rank", isRankAsc, setIsRankAsc);
+  const handleSortPrice = () => handleSort("quotes.KRW.price", isPriceAsc, setIsPriceAsc);
+  const handleSortMarketCap = () => handleSort("quotes.KRW.market_cap", isMarketCapAsc, setIsMarketCapAsc);
+  const handleSortPercentChange = () => handleSort("quotes.KRW.percent_change_24h", isPercentChangeAsc, setIsPercentChangeAsc);
+  const handleSortVolume24h = () => handleSort("quotes.KRW.volume_24h", isVolumeAsc, setIsVolumeAsc);
 
   return (
     <div>
       <h1>100개의 코인 테이블 (KRW)</h1>
-      <UserInfo userId={userData.userId} nickname={userData.nickname} balance={userData.balance} />
-      <RefreshButton onClick={handleReload} />
+      <UserInfo userId={userId} nickname={nickname} balance={balance} />
+      <RefreshButton onClick={fetchData} />
       <table border="1">
         <thead>
           <tr>
@@ -65,10 +86,18 @@ const CoinTable = () => {
             </th>
             <th>티커</th>
             <th>이름</th>
-            <th>가격 (KRW)</th>
-            <th>총 가치 (KRW)</th>
-            <th>24시간 변동률 (%)</th>
-            <th>24시간 거래량 (KRW)</th>
+            <th onClick={handleSortPrice} style={{ cursor: "pointer" }}>
+              가격 (KRW) {isPriceAsc ? "▲" : "▼"}
+            </th>
+            <th onClick={handleSortMarketCap} style={{ cursor: "pointer" }}>
+              총 가치 (KRW) {isMarketCapAsc ? "▲" : "▼"}
+            </th>
+            <th onClick={handleSortPercentChange} style={{ cursor: "pointer" }}>
+              24시간 변동률 (%) {isPercentChangeAsc ? "▲" : "▼"}
+            </th>
+            <th onClick={handleSortVolume24h} style={{ cursor: "pointer" }}>
+              24시간 거래량 (KRW) {isVolumeAsc ? "▲" : "▼"}
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -79,11 +108,7 @@ const CoinTable = () => {
               <td>{crypto.name}</td>
               <td>{crypto.quotes.KRW.price.toLocaleString()}</td>
               <td>{formatNumber(crypto.quotes.KRW.market_cap)}</td>
-              <td
-                style={{
-                  color: crypto.quotes.KRW.percent_change_24h > 0 ? "red" : "skyblue",
-                }}
-              >
+              <td style={{ color: crypto.quotes.KRW.percent_change_24h > 0 ? "red" : "skyblue" }}>
                 {crypto.quotes.KRW.percent_change_24h.toFixed(2)}%
               </td>
               <td>{formatNumber(crypto.quotes.KRW.volume_24h)}</td>
