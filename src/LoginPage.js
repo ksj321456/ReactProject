@@ -18,7 +18,7 @@ function LoginPage() {
             const response = await axios.post('http://localhost:8081/login', { userId, password });
             if (response.status === 200) {
                 localStorage.setItem('token', response.data.token); // Store token for authentication
-                navigate('/main', {state: {
+                navigate('/portfolio', {state: {
                     "userId": userId,
                     "nickname": response.data.nickname,
                     "balance": response.data.balance
