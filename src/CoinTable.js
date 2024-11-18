@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import RefreshButton from './RefreshButton';
 import { useLocation } from "react-router-dom";
 import UserInfo from "./UserInfo";
+import CoinChart from "./coinchart";
+import RefreshButton from "./RefreshButton";
 
 const CoinTable = () => {
   const [data, setData] = useState([]);
-  const [isRankAsc, setIsRankAsc] = useState(true);
-  const [isPriceAsc, setIsPriceAsc] = useState(true);
-  const [isMarketCapAsc, setIsMarketCapAsc] = useState(true);
-  const [isPercentChangeAsc, setIsPercentChangeAsc] = useState(true);
-  const [isVolumeAsc, setIsVolumeAsc] = useState(true);
+  const [selectedCoin, setSelectedCoin] = useState(null);
+  const [chartData, setChartData] = useState(null);
 
   const location = useLocation();
   const userData = { ...location.state };
@@ -20,58 +18,56 @@ const CoinTable = () => {
 
   useEffect(() => {
     fetchData();
-    fetchUserData();
   }, []);
 
   const fetchData = async () => {
     try {
-      const response = await axios.get("https://api.coinpaprika.com/v1/tickers?quotes=KRW");
+      const response = await axios.get(
+        "https://api.coinpaprika.com/v1/tickers?quotes=KRW"
+      );
       setData(response.data.slice(0, 100));
-      alert(`코인 데이터를 가져왔습니다.`)
     } catch (error) {
-      alert("데이터 출력 오류");
+      console.error("Error fetching coin data", error);
     }
   };
 
-  const fetchUserData = async () => {
+  const fetchChartData = async (coinId, coinName) => {
     try {
-      const response = await axios.get(`http://localhost:8081/main?userId=${userId}`);
-      if (response.status === 200) {
-        setUserID(response.data.userId);
-        setNickname(response.data.nickname);
-        setBalance(response.data.balance);
-        console.log(`response data: ${response.data}`);
-      } else {
-        alert("서버 전송 오류");
-      }
+      const response = await axios.get(
+        `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart`,
+        {
+          params: {
+            vs_currency: "krw",
+            days: "30",
+          },
+        }
+      );
+
+      const candlesticks = response.data.prices.map((price, index) => ({
+        x: new Date(price[0]),
+        o: response.data.prices[index][1],
+        h: response.data.prices[index][1] * 1.02,
+        l: response.data.prices[index][1] * 0.98,
+        c: response.data.prices[index][1],
+      }));
+
+      const movingAverage = response.data.prices.map((price, index, array) => {
+        if (index < 5) return null;
+        const avg = array.slice(index - 5, index).reduce((sum, p) => sum + p[1], 0) / 5;
+        return { x: new Date(price[0]), y: avg };
+      }).filter((data) => data);
+
+      const data = {
+        candlesticks,
+        movingAverage,
+      };
+
+      setSelectedCoin(coinName);
+      setChartData(data);
     } catch (error) {
-      alert("서버 전송 오류");
-      console.log(error);
+      console.error("Error fetching chart data", error);
     }
   };
-
-  const formatNumber = (number) => {
-    if (number >= 1_000_000_000_000) return (number / 1_000_000_000_000).toFixed(2) + "조";
-    if (number >= 1_000_000_000) return (number / 1_000_000_000).toFixed(2) + "억";
-    if (number >= 1_000_000) return (number / 1_000_000).toFixed(2) + "백만";
-    return number.toLocaleString();
-  };
-
-  const handleSort = (key, isAsc, setIsAsc) => {
-    const sortedData = [...data].sort((a, b) => {
-      const aValue = key.split('.').reduce((o, i) => o[i], a);
-      const bValue = key.split('.').reduce((o, i) => o[i], b);
-      return isAsc ? bValue - aValue : aValue - bValue;
-    });
-    setData(sortedData);
-    setIsAsc(!isAsc);
-  };
-
-  const handleSortRank = () => handleSort("rank", isRankAsc, setIsRankAsc);
-  const handleSortPrice = () => handleSort("quotes.KRW.price", isPriceAsc, setIsPriceAsc);
-  const handleSortMarketCap = () => handleSort("quotes.KRW.market_cap", isMarketCapAsc, setIsMarketCapAsc);
-  const handleSortPercentChange = () => handleSort("quotes.KRW.percent_change_24h", isPercentChangeAsc, setIsPercentChangeAsc);
-  const handleSortVolume24h = () => handleSort("quotes.KRW.volume_24h", isVolumeAsc, setIsVolumeAsc);
 
   return (
     <div>
@@ -81,23 +77,13 @@ const CoinTable = () => {
       <table border="1">
         <thead>
           <tr>
-            <th onClick={handleSortRank} style={{ cursor: "pointer" }}>
-              순위 {isRankAsc ? "▲" : "▼"}
-            </th>
+            <th>순위</th>
             <th>티커</th>
             <th>이름</th>
-            <th onClick={handleSortPrice} style={{ cursor: "pointer" }}>
-              가격 (KRW) {isPriceAsc ? "▲" : "▼"}
-            </th>
-            <th onClick={handleSortMarketCap} style={{ cursor: "pointer" }}>
-              총 가치 (KRW) {isMarketCapAsc ? "▲" : "▼"}
-            </th>
-            <th onClick={handleSortPercentChange} style={{ cursor: "pointer" }}>
-              24시간 변동률 (%) {isPercentChangeAsc ? "▲" : "▼"}
-            </th>
-            <th onClick={handleSortVolume24h} style={{ cursor: "pointer" }}>
-              24시간 거래량 (KRW) {isVolumeAsc ? "▲" : "▼"}
-            </th>
+            <th>가격 (KRW)</th>
+            <th>총 가치 (KRW)</th>
+            <th>24시간 변동률 (%)</th>
+            <th>24시간 거래량 (KRW)</th>
           </tr>
         </thead>
         <tbody>
@@ -105,17 +91,23 @@ const CoinTable = () => {
             <tr key={crypto.id}>
               <td>{crypto.rank}</td>
               <td>{crypto.symbol}</td>
-              <td>{crypto.name}</td>
-              <td>{crypto.quotes.KRW.price.toLocaleString()}</td>
-              <td>{formatNumber(crypto.quotes.KRW.market_cap)}</td>
-              <td style={{ color: crypto.quotes.KRW.percent_change_24h > 0 ? "red" : "skyblue" }}>
-                {crypto.quotes.KRW.percent_change_24h.toFixed(2)}%
+              <td
+                style={{ cursor: "pointer", color: "blue" }}
+                onClick={() => fetchChartData(crypto.id, crypto.name)}
+              >
+                {crypto.name}
               </td>
-              <td>{formatNumber(crypto.quotes.KRW.volume_24h)}</td>
+              <td>{crypto.quotes.KRW.price.toLocaleString()}</td>
+              <td>{crypto.quotes.KRW.market_cap.toLocaleString()}</td>
+              <td>{crypto.quotes.KRW.percent_change_24h.toFixed(2)}%</td>
+              <td>{crypto.quotes.KRW.volume_24h.toLocaleString()}</td>
             </tr>
           ))}
         </tbody>
       </table>
+      {selectedCoin && chartData && (
+        <CoinChart coinName={selectedCoin} chartData={chartData} />
+      )}
     </div>
   );
 };
