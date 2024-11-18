@@ -17,8 +17,8 @@ ChartJS.register(
 
 const CoinChart = () => {
   const location = useLocation();
-  const coinData = location.state || {};
-  const [coinName, setCoinName] = useState(coinData.coinName || "bitcoin");
+  const coinData = location.state;
+  const [coinName, setCoinName] = useState(coinData.coinName);
   const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [chartInstance, setChartInstance] = useState(null);
@@ -85,11 +85,7 @@ const CoinChart = () => {
         <button onClick={() => setTimeRange(30)}>30일</button>
         <button onClick={() => setTimeRange(365)}>1년</button>
       </div>
-      {loading ? (
-        <p>차트 데이터를 불러오는 중...</p>
-      ) : (
-        chartData && <Line data={chartData} />
-      )}
+      {loading ? (<p>차트 데이터를 불러오는 중...</p>) : ( <Line data={chartData} /> )}
     </div>
   );
 };
