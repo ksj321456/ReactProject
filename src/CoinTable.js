@@ -30,7 +30,6 @@ const CoinTable = () => {
     try {
       const response = await axios.get("https://api.coinpaprika.com/v1/tickers?quotes=KRW");
       setData(response.data.slice(0, 100));
-      alert(`코인 데이터를 가져왔습니다.`)
     } catch (error) {
       alert("데이터 출력 오류");
     }
@@ -84,7 +83,10 @@ const CoinTable = () => {
     <div>
       <h1>100개의 코인 테이블 (KRW)</h1>
       <UserInfo userId={userId} nickname={nickname} balance={balance} />
-      <RefreshButton onClick={fetchData} />
+      <RefreshButton onClick={() => {
+        fetchData();
+        alert(`코인 데이터를 다시 가져왔습니다.`);
+      }} />
       <button type="button" className="portfolio" onClick={() => navigate('/portfolio')}>
                     내 정보
       </button>
@@ -115,7 +117,8 @@ const CoinTable = () => {
             <tr key={crypto.id}>
               <td>{crypto.rank}</td>
               <td>{crypto.symbol}</td>
-              <td>{crypto.name}</td>
+              {/* 가상화폐의 이름을 누르면 해당 가상화폐의 차트 페이지로 이동 */}
+              <td onClick={() => navigate('/chart', {state : {"coinName": crypto.name.toLowerCase()}})}>{crypto.name}</td>
               <td>{crypto.quotes.KRW.price.toLocaleString()}</td>
               <td>{formatNumber(crypto.quotes.KRW.market_cap)}</td>
               <td style={{ color: crypto.quotes.KRW.percent_change_24h > 0 ? "red" : "skyblue" }}>

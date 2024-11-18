@@ -1,2 +1,3 @@
-npm install axios 필요
-npm install react-icons 필요
+npm install axios 설치
+npm install react-icons 설치
+npm install chart.js react-chartjs-2 설치
