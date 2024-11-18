@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import RefreshButton from './RefreshButton';
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import UserInfo from "./UserInfo";
 
 const CoinTable = () => {
@@ -13,15 +13,18 @@ const CoinTable = () => {
   const [isVolumeAsc, setIsVolumeAsc] = useState(true);
 
   const location = useLocation();
+  const navigate = useNavigate();
+
   const userData = { ...location.state };
-  const [userId, setUserID] = useState(userData.userId);
+  const [userId, setUserID] = useState(userData.userId || localStorage.getItem('userId'));
   const [nickname, setNickname] = useState(userData.nickname);
   const [balance, setBalance] = useState(userData.balance);
 
   useEffect(() => {
     fetchData();
     fetchUserData();
-  }, []);
+    saveUserId(userId);
+  }, [userId]);
 
   const fetchData = async () => {
     try {
@@ -49,6 +52,10 @@ const CoinTable = () => {
       console.log(error);
     }
   };
+
+  const saveUserId = (userId)=> {
+    localStorage.setItem('userId',userId)
+  }
 
   const formatNumber = (number) => {
     if (number >= 1_000_000_000_000) return (number / 1_000_000_000_000).toFixed(2) + "조";
@@ -78,6 +85,9 @@ const CoinTable = () => {
       <h1>100개의 코인 테이블 (KRW)</h1>
       <UserInfo userId={userId} nickname={nickname} balance={balance} />
       <RefreshButton onClick={fetchData} />
+      <button type="button" className="portfolio" onClick={() => navigate('/portfolio')}>
+                    내 정보
+      </button>
       <table border="1">
         <thead>
           <tr>

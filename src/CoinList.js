@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import './CoinList.css'
 import axios from 'axios';
-import { useLocation } from "react-router-dom";
 
 function CoinList({userId}) {
     const [coins, setCoins] = useState([]);
@@ -16,7 +15,7 @@ function CoinList({userId}) {
 
     const fetchCoins = async () => {
         try {
-            const response = await axios.get('http://localhost:8081/getCoinList?userId=${userId}');
+            const response = await axios.get(`http://localhost:8081/getCoinList?userId=${userId}`);
             setCoins(response.data);
         } catch (error) {
             alert("코인 목록 데이터 출력 오류");
