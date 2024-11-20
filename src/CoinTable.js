@@ -117,8 +117,11 @@ const CoinTable = () => {
             <tr key={crypto.id}>
               <td>{crypto.rank}</td>
               <td>{crypto.symbol}</td>
-              {/* 가상화폐의 이름을 누르면 해당 가상화폐의 차트 페이지로 이동 */}
-              <td onClick={() => navigate('/chart', {state : {"coinName": crypto.name.toLowerCase()}})}>{crypto.name}</td>
+              {/* 가상화폐의 이름을 누르면 해당 가상화폐의 차트 페이지로 이동, 코인 이름, 코인 가격과 함께 userId 전달 */}
+              <td onClick={() => navigate('/chart', {state : {"coinName": crypto.name.toLowerCase(),
+                "coinPrice": crypto.quotes.KRW.price.toLocaleString(),
+                "userId": userId
+              }})}>{crypto.name}</td>
               <td>{crypto.quotes.KRW.price.toLocaleString()}</td>
               <td>{formatNumber(crypto.quotes.KRW.market_cap)}</td>
               <td style={{ color: crypto.quotes.KRW.percent_change_24h > 0 ? "red" : "skyblue" }}>

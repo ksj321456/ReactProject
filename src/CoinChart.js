@@ -23,6 +23,12 @@ const CoinChart = () => {
   const [loading, setLoading] = useState(true);
   const [chartInstance, setChartInstance] = useState(null);
   const [timeRange, setTimeRange] = useState(7); // 기본값: 7일
+  // CoinTable 컴포넌트로부터 전달받은 현재 코인 가격
+  const [coinPrice, setCoinPrice] = useState(coinData.coinPrice)
+  // 매수, 매도할 코인 갯수
+  const [coinCount, setCoinCount] = useState(0);
+  // 현재 계정의 ID
+  const [userID, setUserID] = useState(coinData.userID);
 
   useEffect(() => {
     if (!coinName) {
@@ -75,9 +81,24 @@ const CoinChart = () => {
     return <p>코인 데이터가 전달되지 않았습니다.</p>;
   }
 
+  const descendingCoinCount = () => {
+    setCoinCount(coinCount - 1);
+    if (coinCount < 1) {
+      setCoinCount(0);
+    }
+  }
+
   return (
     <div>
       <h2>{coinName.toUpperCase()} 차트</h2>
+      <h3>현재 가격: {coinPrice}원</h3>
+      <label>매수, 매도 갯수</label>
+      <input type="text" value={coinCount} maxLength={4}></input>
+      <button onClick={() => setCoinCount(coinCount + 1)}>위</button>
+      <button onClick={descendingCoinCount}>아래</button>
+      <br></br>
+      <button onClick={() => console.log(`매수`)}>매수</button>
+      <button onClick={() => console.log(`매도`)}>매도</button>
       <div>
         {/* 버튼 추가 */}
         <button onClick={() => setTimeRange(1)}>1일</button>
