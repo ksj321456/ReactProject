@@ -21,5 +21,5 @@ public class CoinDTO {
 
     private boolean buy;        // true이면 매수한 것 false이면 매도한 것.
 
-    private User user;
+    private String userId;
 }

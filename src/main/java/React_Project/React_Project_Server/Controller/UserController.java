@@ -90,6 +90,7 @@ public class UserController {
 
     @GetMapping("/main")
     public ResponseEntity<?> showUserData(@RequestParam(name = "userId") String userId) {
+        System.out.println("userId " + userId);
         User user = userService.getByUserId(userId);
         if (user == null) {
             return ResponseEntity.badRequest().body(null);

@@ -31,17 +31,23 @@ public class CoinController {
     // 반환값으로 User 정보를 던져줌 => 업데이트된 User의 정보를 클라이언트에서 반환하기 위해
     @PostMapping("/buyCoins")
     public ResponseEntity<?> buyCoins(@RequestBody CoinBuySaleDTO coinBuySaleDTO) {
+        System.out.println("리액트로부터 전달받은 코인 객체 " + coinBuySaleDTO);
         User user = coinService.buyCoins(coinBuySaleDTO);
         if (user == null) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body("잔액 부족");
         }
         return ResponseEntity.ok().body(user);
     }
 
     // 매도 버튼 요청이 왔을 때 처리
-//    @PostMapping("/sellCoins")
-//    public ResponseEntity<?> sellCoins(@RequestBody CoinBuySaleDTO coinBuySaleDTO) {
-//        if ()
-//    }
+    @PostMapping("/sellCoins")
+    public ResponseEntity<?> sellCoin(@RequestBody CoinBuySaleDTO coinBuySaleDTO) {
+        try {
+            User user = coinService.sellCoins(coinBuySaleDTO);
+            return ResponseEntity.ok().body(user);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("코인 판매 실패");
+        }
+    }
 
 }
