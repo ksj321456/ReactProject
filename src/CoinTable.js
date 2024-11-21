@@ -23,12 +23,12 @@ const CoinTable = () => {
   useEffect(() => {
     fetchData();
     fetchUserData();
-    saveUserId(userId);
-  }, [userId]);
+  }, []);
 
   const fetchData = async () => {
     try {
       const response = await axios.get("https://api.coinpaprika.com/v1/tickers?quotes=KRW");
+      console.log(`fetchData response.data = ${response.data}`);
       setData(response.data.slice(0, 100));
     } catch (error) {
       alert("데이터 출력 오류");
@@ -37,8 +37,10 @@ const CoinTable = () => {
 
   const fetchUserData = async () => {
     try {
+      console.log(`userId = ${userId}`)
       const response = await axios.get(`http://localhost:8081/main?userId=${userId}`);
       if (response.status === 200) {
+        console.log(`fetchUserData response.data = ${response.data}`);
         setUserID(response.data.userId);
         setNickname(response.data.nickname);
         setBalance(response.data.balance);
@@ -51,10 +53,6 @@ const CoinTable = () => {
       console.log(error);
     }
   };
-
-  const saveUserId = (userId)=> {
-    localStorage.setItem('userId',userId)
-  }
 
   const formatNumber = (number) => {
     if (number >= 1_000_000_000_000) return (number / 1_000_000_000_000).toFixed(2) + "조";
@@ -119,7 +117,7 @@ const CoinTable = () => {
               <td>{crypto.symbol}</td>
               {/* 가상화폐의 이름을 누르면 해당 가상화폐의 차트 페이지로 이동, 코인 이름, 코인 가격과 함께 userId 전달 */}
               <td onClick={() => navigate('/chart', {state : {"coinName": crypto.name.toLowerCase(),
-                "coinPrice": crypto.quotes.KRW.price.toLocaleString(),
+                "coinPrice": crypto.quotes.KRW.price,
                 "userId": userId
               }})}>{crypto.name}</td>
               <td>{crypto.quotes.KRW.price.toLocaleString()}</td>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 
@@ -16,6 +16,7 @@ ChartJS.register(
 );
 
 const CoinChart = () => {
+  const navigate = useNavigate();
   const location = useLocation();
   const coinData = location.state;
   const [coinName, setCoinName] = useState(coinData.coinName);
@@ -26,9 +27,11 @@ const CoinChart = () => {
   // CoinTable 컴포넌트로부터 전달받은 현재 코인 가격
   const [coinPrice, setCoinPrice] = useState(coinData.coinPrice)
   // 매수, 매도할 코인 갯수
-  const [coinCount, setCoinCount] = useState(0);
+  const [coinCount, setCoinCount] = useState(1);
   // 현재 계정의 ID
-  const [userID, setUserID] = useState(coinData.userID);
+  const [userId, setUserId] = useState(coinData.userId);
+
+  const ONE_COIN_PRICE = coinData.coinPrice
 
   useEffect(() => {
     if (!coinName) {
@@ -83,22 +86,88 @@ const CoinChart = () => {
 
   const descendingCoinCount = () => {
     setCoinCount(coinCount - 1);
+    setCoinPrice(coinPrice - coinData.coinPrice)
     if (coinCount < 1) {
       setCoinCount(0);
+      setCoinPrice(0);
     }
   }
+
+  // 매수할 때 실행할 함수
+  const buyCoins = async ({userId, coinName, coinPrice, coinCount}) => {
+
+    coinPrice = coinPrice / coinCount;
+
+      const coinBuyObject = {
+        userId,
+        coinName,
+        coinPrice,
+        coinCount,
+        buy: true
+      }
+
+      console.log("보내는 데이터:", coinBuyObject); // 요청 데이터 출력
+
+      try {
+         const response = await axios.post(`http://localhost:8081/buyCoins`, coinBuyObject)
+          if (response.status === 200) {
+            alert(`구입에 성공하였습니다.`)
+            navigate('/main', {state: {"userId": userId}})
+          } else {
+            alert(`구입에 실패하였습니다. 보유 잔고를 확인해주세요.`)
+          }
+        }
+      catch (error) {
+        console.error(`서버 오류: ${error.response.data}`)
+      }
+  }
+
+  const sellCoins = async ({userId, coinName, coinPrice, coinCount}) => {
+
+    coinPrice = coinPrice / coinCount;
+
+    const coinSellObject = {
+      userId,
+      coinName,
+      coinPrice,
+      coinCount,
+      buy: false
+    }
+
+    console.log(`보내는 데이터: ${coinSellObject}`);
+
+    try {
+      const response = await axios.post(`http://localhost:8081/sellCoins`, coinSellObject);
+      if (response.status === 200) {
+        alert(`판매에 성공했습니다.`);
+        navigate('/main', {state: {"userId": userId}})
+      }
+    }
+    catch(error) {
+      console.error(error.toString());
+      alert(`판매에 실패했습니다. 보유 중인 코인 갯수를 확인해주세요.`);
+    }
+  }
+
+  const CoinCountChange = (e) => {
+    const value = Math.max(0, e.target.value); // 0보다 작은 값은 입력 불가
+    setCoinCount(value);
+    setCoinPrice(value * coinData.coinPrice); // 가격을 갯수에 맞춰 계산
+  };
 
   return (
     <div>
       <h2>{coinName.toUpperCase()} 차트</h2>
-      <h3>현재 가격: {coinPrice}원</h3>
+      <h3>현재 가격: {coinPrice.toLocaleString()}원</h3>
       <label>매수, 매도 갯수</label>
-      <input type="text" value={coinCount} maxLength={4}></input>
-      <button onClick={() => setCoinCount(coinCount + 1)}>위</button>
-      <button onClick={descendingCoinCount}>아래</button>
+      <input type="text" value={coinCount} maxLength={4} onChange={CoinCountChange}></input>
+      <button onClick={() => {setCoinCount(coinCount + 1)
+        setCoinPrice(coinPrice + coinData.coinPrice);
+      }}>▲</button>
+      <button onClick={descendingCoinCount}>▼</button>
       <br></br>
-      <button onClick={() => console.log(`매수`)}>매수</button>
-      <button onClick={() => console.log(`매도`)}>매도</button>
+      <button onClick={() => buyCoins({userId, coinName, coinPrice, coinCount})}>매수</button>
+      <button onClick={() => sellCoins({userId, coinName, coinPrice, coinCount})}>매도</button>
       <div>
         {/* 버튼 추가 */}
         <button onClick={() => setTimeRange(1)}>1일</button>

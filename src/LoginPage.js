@@ -17,18 +17,17 @@ function LoginPage() {
         try {
             const response = await axios.post('http://localhost:8081/login', { userId, password });
             if (response.status === 200) {
-                localStorage.setItem('token', response.data.token); // Store token for authentication
+                // 로그인 성공시 로컬 스토리지에 userId 저장
+                localStorage.setItem('userId', userId);
+                console.log(`Login => userId: ${userId}`)
                 navigate('/main', {state: {
                     "userId": userId,
                     "nickname": response.data.nickname,
                     "balance": response.data.balance
                 }})
-            } else {
-                setError('Invalid login credentials');
             }
         } catch (error) {
-            console.error('Login error:', error);
-            setError('Server error. Please try again later.');
+            alert(`로그인에 실패하였습니다.`);
         }
     };
 

@@ -61,6 +61,7 @@ function RegisterPage() {
         try {
             const response = await axios.post('http://localhost:8081/signup', user);
             alert('회원가입 성공: ' + response.data.nickname);
+            localStorage.setItem('userId', userId);
             setName(user.userId);
             navigate('/main', {state: {
                 "userId": userId,
