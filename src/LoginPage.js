@@ -11,6 +11,8 @@ function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState(null);
 
+    localStorage.clear();
+
     const handleLogin = async (e) => {
         e.preventDefault();
 
