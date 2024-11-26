@@ -66,9 +66,12 @@ function CoinList() {
     }
   };
 
+  const totalCoinPrice = coins.reduce((sum, coin) => sum + coin.coinPrice, 0);
+
   return (
     <div>
       <h1>내가 보유한 코인 목록</h1>
+      <h3>총 보유 코인 가격 : {totalCoinPrice.toLocaleString()}</h3>
       <table>
         <thead>
           <tr>
