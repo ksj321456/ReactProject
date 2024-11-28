@@ -79,7 +79,7 @@ function CoinList() {
                             <td>{currentPrices[coin.coinName] ? currentPrices[coin.coinName].toLocaleString() : "N/A"}</td>
                             <td
                                 style={{
-                                    color: ((currentPrices[coin.coinName]/coin.coinPrice)*100 - 100).toFixed(2) > 0 ? "blue" : "red",
+                                    color: ((currentPrices[coin.coinName]/coin.coinPrice)*100 - 100).toFixed(2) > 0 ? "red" : "blue",
                                   }}>
                                 {((currentPrices[coin.coinName]/coin.coinPrice)*100 - 100).toFixed(2)}%
                             </td> 
