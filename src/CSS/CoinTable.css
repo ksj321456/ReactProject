@@ -1,0 +1,11 @@
+/* CSS 추가 */
+.coin-link {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  
+  .coin-link:hover {
+    color: darkblue;
+  }
+  
