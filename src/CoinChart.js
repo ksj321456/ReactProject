@@ -93,6 +93,11 @@ const CoinChart = () => {
     }
   }
 
+  const ascendingCoinCount = () => {
+    setCoinCount(coinCount + 1);
+    setCoinPrice(coinPrice + coinData.coinPrice)
+  }
+
   // 매수할 때 실행할 함수
   const buyCoins = async ({userId, coinName, coinPrice, coinCount}) => {
 
@@ -162,7 +167,7 @@ const CoinChart = () => {
   <label>매수, 매도 갯수</label>
   <input type="text" value={coinCount} maxLength={4} onChange={CoinCountChange}></input>
   <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "10px" }}>
-    <button onClick={() => setCoinCount(coinCount + 1)}>▲</button>
+    <button onClick={() => ascendingCoinCount()}>▲</button>
     <button className="buy-button" onClick={() => buyCoins({ userId, coinName, coinPrice, coinCount })}>매수</button>
   </div>
   <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "0px" }}>
