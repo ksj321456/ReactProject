@@ -86,9 +86,16 @@ const CoinTable = () => {
         fetchData();
         alert(`코인 데이터를 다시 가져왔습니다.`);
       }} />
-      <button onClick={() => {
-        localStorage.removeItem(`userId`);
-        navigate('/');
+      <button onClick={async () => {
+        const response = await axios.post('/logout', {userId: localStorage.getItem('userId')}, {withCredentials: true})
+        if (response.status === 200) {
+          localStorage.removeItem(`userId`);
+          navigate('/');
+        }
+        else {
+          console.error(`로그아웃 실패 ${response.data}`);
+          alert(`로그아웃 실패`);
+        }
       }}>로그아웃</button>
 
       <button type="button" className="portfolio" onClick={() => navigate('/portfolio')}>
