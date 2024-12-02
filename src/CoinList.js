@@ -11,6 +11,7 @@ function CoinList() {
   const [coins, setCoins] = useState([]);
   const [currentPrices, setCurrentPrices] = useState({});
 
+
   useEffect(() => {
     fetchUserData();
     if (userId) {
@@ -129,7 +130,7 @@ function CoinList() {
                     (
                       (currentPrices[coin.coinName] / coin.coinPrice) * 100 -
                       100
-                    ).toFixed(2) > 0
+                    ).toFixed(2) >= 0
                       ? "red"
                       : "blue",
                 }}

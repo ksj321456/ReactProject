@@ -2,7 +2,17 @@ import React, { useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
 // 필요한 요소들을 등록
 ChartJS.register(
@@ -25,14 +35,14 @@ const CoinChart = () => {
   const [chartInstance, setChartInstance] = useState(null);
   const [timeRange, setTimeRange] = useState(7); // 기본값: 7일
   // CoinTable 컴포넌트로부터 전달받은 현재 코인 가격
-  const [coinPrice, setCoinPrice] = useState(coinData.coinPrice)
+  const [coinPrice, setCoinPrice] = useState(coinData.coinPrice);
   // 매수, 매도할 코인 갯수
   const [coinCount, setCoinCount] = useState(1);
   // 현재 계정의 ID
   const [userId, setUserId] = useState(coinData.userId);
   const [balance, setBalance] = useState('');
 
-  const ONE_COIN_PRICE = coinData.coinPrice
+  const ONE_COIN_PRICE = coinData.coinPrice;
 
   useEffect(() => {
     fetchUserData();
@@ -102,49 +112,48 @@ const CoinChart = () => {
 
   const descendingCoinCount = () => {
     setCoinCount(coinCount - 1);
-    setCoinPrice(coinPrice - coinData.coinPrice)
+    setCoinPrice(coinPrice - coinData.coinPrice);
     if (coinCount < 1) {
       setCoinCount(0);
       setCoinPrice(0);
     }
-  }
+  };
 
   const ascendingCoinCount = () => {
     setCoinCount(coinCount + 1);
-    setCoinPrice(coinPrice + coinData.coinPrice)
-  }
+    setCoinPrice(coinPrice + coinData.coinPrice);
+  };
 
   // 매수할 때 실행할 함수
-  const buyCoins = async ({userId, coinName, coinPrice, coinCount}) => {
-
+  const buyCoins = async ({ userId, coinName, coinPrice, coinCount }) => {
     coinPrice = coinPrice / coinCount;
 
-      const coinBuyObject = {
-        userId,
-        coinName,
-        coinPrice,
-        coinCount,
-        buy: true
+    const coinBuyObject = {
+      userId,
+      coinName,
+      coinPrice,
+      coinCount,
+      buy: true,
+    };
+
+    console.log("보내는 데이터:", coinBuyObject); // 요청 데이터 출력
+
+    try {
+      const response = await axios.post(
+        `http://localhost:8081/buyCoins`,
+        coinBuyObject
+      );
+      if (response.status === 200) {
+        alert(`구입에 성공하였습니다.`);
+        navigate("/main", { state: { userId: userId } });
       }
+    } catch (error) {
+      alert(`구입에 실패하였습니다. 보유 잔고를 확인해주세요.`);
+      console.error(`서버 오류: ${error.response.data}`);
+    }
+  };
 
-      console.log("보내는 데이터:", coinBuyObject); // 요청 데이터 출력
-
-      try {
-         const response = await axios.post(`http://localhost:8081/buyCoins`, coinBuyObject)
-          if (response.status === 200) {
-            alert(`구입에 성공하였습니다.`)
-            navigate('/main', {state: {"userId": userId}})
-          } else {
-            alert(`구입에 실패하였습니다. 보유 잔고를 확인해주세요.`)
-          }
-        }
-      catch (error) {
-        console.error(`서버 오류: ${error.response.data}`)
-      }
-  }
-
-  const sellCoins = async ({userId, coinName, coinPrice, coinCount}) => {
-
+  const sellCoins = async ({ userId, coinName, coinPrice, coinCount }) => {
     coinPrice = coinPrice / coinCount;
 
     const coinSellObject = {
@@ -152,23 +161,25 @@ const CoinChart = () => {
       coinName,
       coinPrice,
       coinCount,
-      buy: false
-    }
+      buy: false,
+    };
 
     console.log(`보내는 데이터: ${coinSellObject}`);
 
     try {
-      const response = await axios.post(`http://localhost:8081/sellCoins`, coinSellObject);
+      const response = await axios.post(
+        `http://localhost:8081/sellCoins`,
+        coinSellObject
+      );
       if (response.status === 200) {
         alert(`판매에 성공했습니다.`);
-        navigate('/main', {state: {"userId": userId}})
+        navigate("/main", { state: { userId: userId } });
       }
-    }
-    catch(error) {
+    } catch (error) {
       console.error(error.toString());
       alert(`판매에 실패했습니다. 보유 중인 코인 갯수를 확인해주세요.`);
     }
-  }
+  };
 
   const CoinCountChange = (e) => {
     const value = Math.max(0, e.target.value); // 0보다 작은 값은 입력 불가
