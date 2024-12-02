@@ -41,25 +41,43 @@ public class CoinService {
 
         User user = userOptional.get();
 
-        // 코인 매매기록 저장
-        Coin coin = Coin.builder().coinName(coinBuySaleDTO.getCoinName())
-                .coinPrice(coinBuySaleDTO.getCoinPrice())
-                .coinCount(coinBuySaleDTO.getCoinCount())
-                .buy(coinBuySaleDTO.isBuy())
-                .user(user)
-                .build();
+        // 기존 코인을 찾는다.
+        Optional<Coin> existingCoinOptional = coinRepository.findByUserAndCoinName(user, coinBuySaleDTO.getCoinName());
 
-        // 코인 매매하고 남은 돈을 새로 저장해야함
+        // 코인을 사고 난 후에 남은 금액 계산
         double balance = user.getBalance();
-        // 코인을 사고 난 후에 남은 금액
-        double balanceResult = balance - (coinBuySaleDTO.getCoinCount() * coinBuySaleDTO.getCoinPrice());
+        double totalCost = coinBuySaleDTO.getCoinCount() * coinBuySaleDTO.getCoinPrice();
+        double balanceResult = balance - totalCost;
 
-        // 돈이 부족할 경우
         if (balanceResult < 0) {
             throw new IllegalArgumentException("잔액 부족으로 코인을 구입할 수 없습니다.");
         }
 
-        // 코인을 산 후 남은 금액 저장
+        Coin coin;
+        if (existingCoinOptional.isPresent()) {
+            // 기존 코인이 있는 경우
+            coin = existingCoinOptional.get();
+
+            // 새로운 평균 가격 계산
+            double existingTotalValue = coin.getCoinCount() * coin.getCoinPrice();
+            double newTotalValue = totalCost + existingTotalValue;
+            long newCoinCount = coin.getCoinCount() + coinBuySaleDTO.getCoinCount();
+            double newAveragePrice = newTotalValue / newCoinCount;
+
+            coin.setCoinCount(newCoinCount);
+            coin.setCoinPrice(newAveragePrice);
+        } else {
+            // 기존 코인이 없는 경우 새로 생성
+            coin = Coin.builder()
+                    .coinName(coinBuySaleDTO.getCoinName())
+                    .coinPrice(coinBuySaleDTO.getCoinPrice())
+                    .coinCount(coinBuySaleDTO.getCoinCount())
+                    .buy(coinBuySaleDTO.isBuy())
+                    .user(user)
+                    .build();
+        }
+
+        // 남은 잔액 업데이트
         user.setBalance(balanceResult);
 
         try {
@@ -71,6 +89,7 @@ public class CoinService {
 
         return user;
     }
+
 
     public User sellCoins(CoinBuySaleDTO coinBuySaleDTO) {
         Optional<User> userOptional = userRepository.findByUserId(coinBuySaleDTO.getUserId());
