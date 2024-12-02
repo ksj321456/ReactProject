@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import "./css/CoinList.css";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function CoinList() {
   const [userId, setUserID] = useState(localStorage.getItem("userId"));
 
   const [coins, setCoins] = useState([]);
   const [currentPrices, setCurrentPrices] = useState({});
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUserData();
@@ -79,7 +82,19 @@ function CoinList() {
         <tbody>
           {coins.map((coin, index) => (
             <tr key={index}>
-              <td>{coin.coinName}</td>
+              <td
+                onClick={() =>
+                  navigate("/chart", {
+                    state: {
+                      coinName: coin.coinName,
+                      coinPrice: coin.coinPrice,
+                      userId: localStorage.getItem(userId),
+                    },
+                  })
+                }
+              >
+                {coin.coinName}
+              </td>
               <td>{coin.coinPrice.toLocaleString()}</td>
               <td>
                 {currentPrices[coin.coinName]
