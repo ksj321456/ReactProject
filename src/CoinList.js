@@ -26,9 +26,7 @@ function CoinList() {
         `http://localhost:8081/main?userId=${userId}`
       );
       if (response.status === 200) {
-        console.log(`fetchUserData response.data = ${response.data}`);
         setUserID(response.data.userId);
-        console.log(`response data: ${response.data}`);
       } else {
         alert("서버 전송 오류");
       }
@@ -49,7 +47,6 @@ function CoinList() {
     }
   };
 
-  // 데이터 가져오는 함수
   const fetchData = async () => {
     try {
       const response = await axios.get(
@@ -59,35 +56,58 @@ function CoinList() {
       response.data.forEach((crypto) => {
         prices[crypto.name.toLowerCase()] = crypto.quotes.KRW.price;
       });
-      console.log("Current Prices: ", currentPrices);
       setCurrentPrices(prices);
     } catch (error) {
       alert("데이터 출력 오류");
     }
   };
 
-  const totalCoinPrice = coins.reduce((sum, coin) => sum + coin.coinPrice, 0);
-  const totalCurrentPrice = coins.reduce((sum, coin) => {
-    const currentPrice = currentPrices[coin.coinName];
-    return sum + (currentPrice ? currentPrice : 0);
-  }, 0);
+  const getTotalCoinPrice = () => {
+    return coins.reduce((sum, coin) => sum + coin.coinCount * coin.coinPrice, 0);
+  };
+
+  const getTotalCurrentPrice = () => {
+    return coins.reduce((sum, coin) => {
+      const currentPrice = currentPrices[coin.coinName];
+      return sum + (currentPrice ? coin.coinCount * currentPrice : 0);
+    }, 0);
+  };
+
+  const getProfitOrLoss = () => {
+    return getTotalCurrentPrice() - getTotalCoinPrice();
+  };
 
   return (
     <div>
       <h2>내가 보유한 코인 목록</h2>
       <h3>
-        총 현재 가격: {totalCurrentPrice.toLocaleString()} 원
+        총 보유 코인 가격: {getTotalCoinPrice().toLocaleString()} 원
         <br />
-        총 보유 코인 가격: {totalCoinPrice.toLocaleString()} 원
+        총 현재 코인 가격: {getTotalCurrentPrice().toLocaleString()} 원
         <br />
-         총 변동률: 
-        <span 
-            style={{
-                 color: ((totalCurrentPrice / totalCoinPrice) * 100 - 100).toFixed(2) > 0 ? "red" : "blue",
-                marginLeft: '10px'
-            }}
+        총 변동률: 
+        <span
+          style={{
+            color:
+              ((getTotalCurrentPrice() / getTotalCoinPrice()) * 100 - 100) > 0
+                ? "red"
+                : "blue",
+            marginLeft: "10px",
+          }}
         >
-            {((totalCurrentPrice / totalCoinPrice) * 100 - 100).toFixed(2)}%
+          {((getTotalCurrentPrice() / getTotalCoinPrice()) * 100 - 100).toFixed(2)}
+          %
+        </span>
+        <br />
+        총 수익:&nbsp;
+        <span
+          style={{
+            color: getProfitOrLoss() >= 0 ? "red" : "blue",
+          }}
+        >
+          {getProfitOrLoss() >= 0
+            ? `+${getProfitOrLoss().toLocaleString()} 원`
+            : `-${getProfitOrLoss().toLocaleString()} 원`}
         </span>
       </h3>
 
@@ -98,51 +118,66 @@ function CoinList() {
             <th>가격(KRW)</th>
             <th>현재가격</th>
             <th>변동률</th>
+            <th>변동 금액</th>
             <th>개수</th>
           </tr>
         </thead>
         <tbody>
-          {coins.map((coin, index) => (
-            <tr key={index}>
-              <td
-                onClick={() =>
-                  navigate("/chart", {
-                    state: {
-                      coinName: coin.coinName.toLowerCase(),
-                      coinPrice: coin.coinPrice,
-                      userId: userId,
-                    },
-                  })
-                }
-              >
-                {coin.coinName}
-              </td>
-              <td>{coin.coinPrice.toLocaleString()}</td>
-              <td>
-                {currentPrices[coin.coinName]
-                  ? currentPrices[coin.coinName].toLocaleString()
-                  : "N/A"}
-              </td>
-              <td
-                style={{
-                  color:
-                    (
-                      (currentPrices[coin.coinName] / coin.coinPrice) * 100 -
-                      100
-                    ).toFixed(2) >= 0
-                      ? "red"
-                      : "blue",
-                }}
-              >
-                {(
-                  (currentPrices[coin.coinName] / coin.coinPrice) * 100 -
-                  100
-                ).toFixed(2)}
-                %
-              </td>
-              <td>{coin.coinCount}</td>
-            </tr>
-          ))}
+          {coins.map((coin, index) => {
+            const currentPrice = currentPrices[coin.coinName];
+            const changeAmount =
+              currentPrice && currentPrice * coin.coinCount -
+              coin.coinPrice * coin.coinCount;
+
+            return (
+              <tr key={index}>
+                <td
+                  onClick={() =>
+                    navigate("/chart", {
+                      state: {
+                        coinName: coin.coinName.toLowerCase(),
+                        coinPrice: coin.coinPrice,
+                        userId: userId,
+                      },
+                    })
+                  }
+                >
+                  {coin.coinName}
+                </td>
+                <td>{coin.coinPrice.toLocaleString()}</td>
+                <td>
+                  {currentPrice
+                    ? currentPrice.toLocaleString()
+                    : "N/A"}
+                </td>
+                <td
+                  style={{
+                    color:
+                      ((currentPrice / coin.coinPrice) * 100 - 100).toFixed(2) >=
+                      0
+                        ? "red"
+                        : "blue",
+                  }}
+                >
+                  {currentPrice
+                    ? ((currentPrice / coin.coinPrice) * 100 - 100).toFixed(2)
+                    : "N/A"}
+                  %
+                </td>
+                <td
+                  style={{
+                    color: changeAmount >= 0 ? "red" : "blue",
+                  }}
+                >
+                  {changeAmount
+                    ? changeAmount.toLocaleString()
+                    : "N/A"}
+                  원
+                </td>
+                <td>{coin.coinCount}</td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>
