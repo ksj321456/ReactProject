@@ -1,8 +1,7 @@
-// LoginPage.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "./LoginPage.css";
+import "./css/LoginPage.css";
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -22,7 +21,7 @@ function LoginPage() {
         password,
       });
       if (response.status === 200) {
-        // 로그인 성공시 로컬 스토리지에 userId 저장
+        // 로그인 성공 시 로컬 스토리지에 userId 저장
         localStorage.setItem("userId", userId);
         console.log(`Login => userId: ${userId}`);
         navigate("/main", {
@@ -34,7 +33,7 @@ function LoginPage() {
         });
       }
     } catch (error) {
-      alert(`로그인에 실패하였습니다.`);
+      alert("로그인에 실패하였습니다.");
     }
   };
 
@@ -53,7 +52,7 @@ function LoginPage() {
           />
 
           <label>비밀번호:</label>
-          <div className="input password">
+          <div className="password-container">
             <input
               type={showPassword ? "text" : "password"}
               value={password}
@@ -62,7 +61,7 @@ function LoginPage() {
               required
             />
             <div
-              className="eyes"
+              className="eye-icon"
               onClick={() => setShowPassword(!showPassword)}
             >
               <i

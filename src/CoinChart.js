@@ -2,7 +2,17 @@ import React, { useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
 // 필요한 요소들을 등록
 ChartJS.register(
@@ -25,15 +35,17 @@ const CoinChart = () => {
   const [chartInstance, setChartInstance] = useState(null);
   const [timeRange, setTimeRange] = useState(7); // 기본값: 7일
   // CoinTable 컴포넌트로부터 전달받은 현재 코인 가격
-  const [coinPrice, setCoinPrice] = useState(coinData.coinPrice)
+  const [coinPrice, setCoinPrice] = useState(coinData.coinPrice);
   // 매수, 매도할 코인 갯수
   const [coinCount, setCoinCount] = useState(1);
   // 현재 계정의 ID
   const [userId, setUserId] = useState(coinData.userId);
+  const [balance, setBalance] = useState('');
 
-  const ONE_COIN_PRICE = coinData.coinPrice
+  const ONE_COIN_PRICE = coinData.coinPrice;
 
   useEffect(() => {
+    fetchUserData();
     if (!coinName) {
       setLoading(false);
     } else {
@@ -80,50 +92,68 @@ const CoinChart = () => {
     }
   };
 
+  const fetchUserData = async () => {
+    try {
+        const response = await axios.get(`http://localhost:8081/main?userId=${userId}`);
+        if (response.status === 200) {
+            setBalance(response.data.balance);
+        } else {
+            throw new Error("서버 전송 오류");
+        }
+    } catch (error) {
+        console.log(error);
+    } 
+};
+
+
   if (!coinName) {
     return <p>코인 데이터가 전달되지 않았습니다.</p>;
   }
 
   const descendingCoinCount = () => {
     setCoinCount(coinCount - 1);
-    setCoinPrice(coinPrice - coinData.coinPrice)
+    setCoinPrice(coinPrice - coinData.coinPrice);
     if (coinCount < 1) {
       setCoinCount(0);
       setCoinPrice(0);
     }
-  }
+  };
+
+  const ascendingCoinCount = () => {
+    setCoinCount(coinCount + 1);
+    setCoinPrice(coinPrice + coinData.coinPrice);
+  };
 
   // 매수할 때 실행할 함수
-  const buyCoins = async ({userId, coinName, coinPrice, coinCount}) => {
-
+  const buyCoins = async ({ userId, coinName, coinPrice, coinCount }) => {
     coinPrice = coinPrice / coinCount;
 
-      const coinBuyObject = {
-        userId,
-        coinName,
-        coinPrice,
-        coinCount,
-        buy: true
+    const coinBuyObject = {
+      userId,
+      coinName,
+      coinPrice,
+      coinCount,
+      buy: true,
+    };
+
+    console.log("보내는 데이터:", coinBuyObject); // 요청 데이터 출력
+
+    try {
+      const response = await axios.post(
+        `http://localhost:8081/buyCoins`,
+        coinBuyObject
+      );
+      if (response.status === 200) {
+        alert(`구입에 성공하였습니다.`);
+        navigate("/main", { state: { userId: userId } });
       }
+    } catch (error) {
+      alert(`구입에 실패하였습니다. 보유 잔고를 확인해주세요.`);
+      console.error(`서버 오류: ${error.response.data}`);
+    }
+  };
 
-      console.log("보내는 데이터:", coinBuyObject); // 요청 데이터 출력
-
-      try {
-         const response = await axios.post(`http://localhost:8081/buyCoins`, coinBuyObject)
-          if (response.status === 200) {
-            alert(`구입에 성공하였습니다.`)
-            navigate('/main', {state: {"userId": userId}})
-          } else {
-            alert(`구입에 실패하였습니다. 보유 잔고를 확인해주세요.`)
-          }
-        }
-      catch (error) {
-        console.error(`서버 오류: ${error.response.data}`)
-      }
-  }
-
-  const sellCoins = async ({userId, coinName, coinPrice, coinCount}) => {
-
+  const sellCoins = async ({ userId, coinName, coinPrice, coinCount }) => {
     coinPrice = coinPrice / coinCount;
 
     const coinSellObject = {
@@ -131,23 +161,25 @@ const CoinChart = () => {
       coinName,
       coinPrice,
       coinCount,
-      buy: false
-    }
+      buy: false,
+    };
 
     console.log(`보내는 데이터: ${coinSellObject}`);
 
     try {
-      const response = await axios.post(`http://localhost:8081/sellCoins`, coinSellObject);
+      const response = await axios.post(
+        `http://localhost:8081/sellCoins`,
+        coinSellObject
+      );
       if (response.status === 200) {
         alert(`판매에 성공했습니다.`);
-        navigate('/main', {state: {"userId": userId}})
+        navigate("/main", { state: { userId: userId } });
       }
-    }
-    catch(error) {
+    } catch (error) {
       console.error(error.toString());
       alert(`판매에 실패했습니다. 보유 중인 코인 갯수를 확인해주세요.`);
     }
-  }
+  };
 
   const CoinCountChange = (e) => {
     const value = Math.max(0, e.target.value); // 0보다 작은 값은 입력 불가
@@ -157,26 +189,32 @@ const CoinChart = () => {
 
   return (
     <div>
-      <h2>{coinName.toUpperCase()} 차트</h2>
-      <h3>현재 가격: {coinPrice.toLocaleString()}원</h3>
-      <label>매수, 매도 갯수</label>
-      <input type="text" value={coinCount} maxLength={4} onChange={CoinCountChange}></input>
-      <button onClick={() => {setCoinCount(coinCount + 1)
-        setCoinPrice(coinPrice + coinData.coinPrice);
-      }}>▲</button>
-      <button onClick={descendingCoinCount}>▼</button>
-      <br></br>
-      <button onClick={() => buyCoins({userId, coinName, coinPrice, coinCount})}>매수</button>
-      <button onClick={() => sellCoins({userId, coinName, coinPrice, coinCount})}>매도</button>
-      <div>
-        {/* 버튼 추가 */}
-        <button onClick={() => setTimeRange(1)}>1일</button>
-        <button onClick={() => setTimeRange(7)}>7일</button>
-        <button onClick={() => setTimeRange(30)}>30일</button>
-        <button onClick={() => setTimeRange(365)}>1년</button>
-      </div>
-      {loading ? (<p>차트 데이터를 불러오는 중...</p>) : ( <Line data={chartData} /> )}
-    </div>
+  <h2>{coinName.toUpperCase()} 차트</h2>
+  <h3>현재 잔액: {balance.toLocaleString()} 원</h3>
+  <h3>현재 가격: {coinPrice.toLocaleString()} 원</h3>
+  <label>매수, 매도 갯수</label>
+  <input type="text" value={coinCount} maxLength={4} onChange={CoinCountChange}></input>
+  <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "10px" }}>
+    <button onClick={() => ascendingCoinCount()}>▲</button>
+    <button className="buy-button" onClick={() => buyCoins({ userId, coinName, coinPrice, coinCount })}>매수</button>
+  </div>
+  <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "0px" }}>
+    <button onClick={descendingCoinCount}>▼</button>
+    <button className="sell-button" onClick={() => sellCoins({ userId, coinName, coinPrice, coinCount })}>매도</button>
+  </div>
+  <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "5px" }}>
+    <button onClick={() => setTimeRange(1)}>1일</button>
+    <button onClick={() => setTimeRange(7)}>7일</button>
+    <button onClick={() => setTimeRange(30)}>30일</button>
+    <button onClick={() => setTimeRange(365)}>1년</button>
+  </div>
+  {loading ? (
+    <p>차트 데이터를 불러오는 중...</p>
+  ) : (
+    chartData && <Line data={chartData} />
+  )}
+</div>
+
   );
 };
 

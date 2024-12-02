@@ -3,7 +3,7 @@ import axios from "axios";
 import UserInfo from './UserInfo';
 import CoinList from './CoinList';
 import { useNavigate } from 'react-router-dom';
-import './Portfolio.css';
+import './css/Portfolio.css';
 
 const Portfolio = () => {
     const [userId, setUserID] = useState(localStorage.getItem('userId'));
@@ -35,7 +35,7 @@ const Portfolio = () => {
             <button type="button" className="main" onClick={() => navigate('/main')}>
                     메인으로
             </button>
-            <h1>Portfolio</h1>
+            <h2>Portfolio</h2>
             <header>
                 <UserInfo userId={userId} nickname={nickname} balance={balance} />
             </header>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // useHistory 추가
 import axios from 'axios';
-import './RegisterPage.css';
+import './css/RegisterPage.css';
 import 'font-awesome/css/font-awesome.min.css'; // Font Awesome 스타일 추가
 
 function RegisterPage() {
