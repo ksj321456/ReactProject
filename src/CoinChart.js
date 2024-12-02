@@ -39,10 +39,12 @@ const CoinChart = () => {
   const [coinCount, setCoinCount] = useState(1);
   // 현재 계정의 ID
   const [userId, setUserId] = useState(coinData.userId);
+  const [balance, setBalance] = useState('');
 
   const ONE_COIN_PRICE = coinData.coinPrice;
 
   useEffect(() => {
+    fetchUserData();
     if (!coinName) {
       setLoading(false);
     } else {
@@ -88,6 +90,20 @@ const CoinChart = () => {
       setLoading(false);
     }
   };
+
+  const fetchUserData = async () => {
+    try {
+        const response = await axios.get(`http://localhost:8081/main?userId=${userId}`);
+        if (response.status === 200) {
+            setBalance(response.data.balance);
+        } else {
+            throw new Error("서버 전송 오류");
+        }
+    } catch (error) {
+        console.log(error);
+    } 
+};
+
 
   if (!coinName) {
     return <p>코인 데이터가 전달되지 않았습니다.</p>;
@@ -172,66 +188,32 @@ const CoinChart = () => {
 
   return (
     <div>
-      <h2>{coinName.toUpperCase()} 차트</h2>
-      <h3>현재 가격: {coinPrice.toLocaleString()}원</h3>
-      <label>매수, 매도 갯수</label>
-      <input
-        type="text"
-        value={coinCount}
-        maxLength={4}
-        onChange={CoinCountChange}
-      ></input>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: "10px",
-          marginTop: "10px",
-        }}
-      >
-        <button onClick={() => ascendingCoinCount()}>▲</button>
-        <button
-          className="buy-button"
-          onClick={() => buyCoins({ userId, coinName, coinPrice, coinCount })}
-        >
-          매수
-        </button>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: "10px",
-          marginTop: "0px",
-        }}
-      >
-        <button onClick={descendingCoinCount}>▼</button>
-        <button
-          className="sell-button"
-          onClick={() => sellCoins({ userId, coinName, coinPrice, coinCount })}
-        >
-          매도
-        </button>
-      </div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          gap: "10px",
-          marginTop: "5px",
-        }}
-      >
-        <button onClick={() => setTimeRange(1)}>1일</button>
-        <button onClick={() => setTimeRange(7)}>7일</button>
-        <button onClick={() => setTimeRange(30)}>30일</button>
-        <button onClick={() => setTimeRange(365)}>1년</button>
-      </div>
-      {loading ? (
-        <p>차트 데이터를 불러오는 중...</p>
-      ) : (
-        <Line data={chartData} />
-      )}
-    </div>
+  <h2>{coinName.toUpperCase()} 차트</h2>
+  <h3>현재 잔액: {balance.toLocaleString()} 원</h3>
+  <h3>현재 가격: {coinPrice.toLocaleString()} 원</h3>
+  <label>매수, 매도 갯수</label>
+  <input type="text" value={coinCount} maxLength={4} onChange={CoinCountChange}></input>
+  <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "10px" }}>
+    <button onClick={() => ascendingCoinCount()}>▲</button>
+    <button className="buy-button" onClick={() => buyCoins({ userId, coinName, coinPrice, coinCount })}>매수</button>
+  </div>
+  <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "0px" }}>
+    <button onClick={descendingCoinCount}>▼</button>
+    <button className="sell-button" onClick={() => sellCoins({ userId, coinName, coinPrice, coinCount })}>매도</button>
+  </div>
+  <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "5px" }}>
+    <button onClick={() => setTimeRange(1)}>1일</button>
+    <button onClick={() => setTimeRange(7)}>7일</button>
+    <button onClick={() => setTimeRange(30)}>30일</button>
+    <button onClick={() => setTimeRange(365)}>1년</button>
+  </div>
+  {loading ? (
+    <p>차트 데이터를 불러오는 중...</p>
+  ) : (
+    chartData && <Line data={chartData} />
+  )}
+</div>
+
   );
 };
 

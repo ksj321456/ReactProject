@@ -4,12 +4,12 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function CoinList() {
+  const navigate = useNavigate();
+
   const [userId, setUserID] = useState(localStorage.getItem("userId"));
 
   const [coins, setCoins] = useState([]);
   const [currentPrices, setCurrentPrices] = useState({});
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUserData();
@@ -66,12 +66,9 @@ function CoinList() {
     }
   };
 
-  const totalCoinPrice = coins.reduce((sum, coin) => sum + coin.coinPrice, 0);
-
   return (
     <div>
-      <h1>내가 보유한 코인 목록</h1>
-      <h3>총 보유 코인 가격 : {totalCoinPrice.toLocaleString()}</h3>
+      <h2>내가 보유한 코인 목록</h2>
       <table>
         <thead>
           <tr>
@@ -85,19 +82,7 @@ function CoinList() {
         <tbody>
           {coins.map((coin, index) => (
             <tr key={index}>
-              <td
-                onClick={() =>
-                  navigate("/chart", {
-                    state: {
-                      coinName: coin.coinName,
-                      coinPrice: coin.coinPrice,
-                      userId: localStorage.getItem(userId),
-                    },
-                  })
-                }
-              >
-                {coin.coinName}
-              </td>
+              <td>{coin.coinName}</td>
               <td>{coin.coinPrice.toLocaleString()}</td>
               <td>
                 {currentPrices[coin.coinName]
