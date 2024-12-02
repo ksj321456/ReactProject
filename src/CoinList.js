@@ -66,9 +66,31 @@ function CoinList() {
     }
   };
 
+  const totalCoinPrice = coins.reduce((sum, coin) => sum + coin.coinPrice, 0);
+  const totalCurrentPrice = coins.reduce((sum, coin) => {
+    const currentPrice = currentPrices[coin.coinName];
+    return sum + (currentPrice ? currentPrice : 0);
+  }, 0);
+
   return (
     <div>
       <h2>내가 보유한 코인 목록</h2>
+      <h3>
+        총 현재 가격: {totalCurrentPrice.toLocaleString()} 원
+        <br />
+        총 보유 코인 가격: {totalCoinPrice.toLocaleString()} 원
+        <br />
+         총 변동률: 
+        <span 
+            style={{
+                 color: ((totalCurrentPrice / totalCoinPrice) * 100 - 100).toFixed(2) > 0 ? "red" : "blue",
+                marginLeft: '10px'
+            }}
+        >
+            {((totalCurrentPrice / totalCoinPrice) * 100 - 100).toFixed(2)}%
+        </span>
+      </h3>
+
       <table>
         <thead>
           <tr>

@@ -200,7 +200,7 @@ const CoinChart = () => {
   {loading ? (
     <p>차트 데이터를 불러오는 중...</p>
   ) : (
-    <Line data={chartData} />
+    chartData && <Line data={chartData} />
   )}
 </div>
 
