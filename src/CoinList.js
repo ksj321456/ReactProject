@@ -107,7 +107,7 @@ function CoinList() {
                     (
                       (currentPrices[coin.coinName] / coin.coinPrice) * 100 -
                       100
-                    ).toFixed(2) > 0
+                    ).toFixed(2) >= 0
                       ? "red"
                       : "blue",
                 }}
