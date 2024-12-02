@@ -87,7 +87,10 @@ function CoinList() {
                 marginLeft: '10px'
             }}
         >
-            {((totalCurrentPrice / totalCoinPrice) * 100 - 100).toFixed(2)}%
+            {(totalCoinPrice - totalCurrentPrice).toLocaleString()}원
+            ({((totalCurrentPrice / totalCoinPrice) * 100 - 100).toFixed(2)}%)
+            
+            
         </span>
       </h3>
 
