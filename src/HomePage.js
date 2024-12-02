@@ -11,14 +11,16 @@ function HomePage() {
   };
 
   return (
-    <div>
-      <h1>가상화폐 모의투자시스템</h1>
-      <button type="button" className="login" onClick={handleLogin}>
-        로그인
-      </button>
-      <button type="button" className="register" onClick={handleRegister}>
-        회원가입
-      </button>
+    <div className="container">
+      <div className="overlay">
+        <h1>가상화폐 모의투자시스템</h1>
+        <button type="button" className="home" onClick={handleLogin}>
+          로그인
+        </button>
+        <button type="button" className="home" onClick={handleRegister}>
+          회원가입
+        </button>
+      </div>
     </div>
   );
 }

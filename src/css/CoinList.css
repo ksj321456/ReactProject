@@ -1,0 +1,90 @@
+/* General table styling */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #121212; /* Deep dark background */
+    color: #e0e0e0; /* Light text for readability */
+    margin-top: 20px;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    font-size: 14px; /* Adjust font size for visibility */
+    border-bottom: 1px solid #333333; /* Subtle borders */
+}
+
+th {
+    background-color: #1a1a1a; /* Slightly darker for headers */
+    color: #ffa500; /* Highlighted orange text for headers */
+    font-weight: bold;
+    text-transform: uppercase; /* Makes headers uppercase */
+}
+
+tr:nth-child(even) {
+    background-color: #1f1f1f; /* Alternating row colors */
+}
+
+tr:hover {
+    background-color: #2a2a2a; /* Highlight row on hover */
+    cursor: pointer;
+}
+
+.positive {
+    color: #4caf50; /* Bright green for positive values */
+    font-weight: bold;
+}
+
+.negative {
+    color: #f44336; /* Bright red for negative values */
+    font-weight: bold;
+}
+
+/* Button Container Styling */
+.button-container {
+    display: flex;
+    flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
+    justify-content: center; /* Center align the buttons */
+    gap: 10px; /* Space between buttons */
+    margin: 20px 0; /* Add some margin above and below */
+}
+
+button {
+    background-color: #ffa500;
+    border: none;
+    color: #121212;
+    font-size: 15px;
+    font-weight: bold;
+    padding: 6px 6px;
+    border-radius: 5px;
+    cursor: pointer;
+    min-width: 100px; /* Ensure consistent button width */
+    text-align: center;
+    border: 4px solid #6a6868;
+}
+
+button:hover {
+    background-color: #cc8400;
+}
+
+.sell-button {
+    background-color: #28a745; /* Red background */
+    color: #c0e431;           /* White text */
+    border: none;
+    border-radius: 5px;
+    padding: 10px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    border: 4px solid #68696a;
+  }
+  
+  .buy-button {
+    background-color: #28a745; /* Green background */
+    color: #c0e431;           /* White text */
+    border: none;
+    border-radius: 5px;
+    padding: 10px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    border: 4px solid #6a6868;
+  }

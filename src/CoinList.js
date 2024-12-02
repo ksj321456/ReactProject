@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
-import "./CoinList.css";
+import "./css/CoinList.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 function CoinList() {
-  const navigate = useNavigate();
-
   const [userId, setUserID] = useState(localStorage.getItem("userId"));
 
   const [coins, setCoins] = useState([]);
   const [currentPrices, setCurrentPrices] = useState({});
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUserData();
@@ -89,9 +89,9 @@ function CoinList() {
                 onClick={() =>
                   navigate("/chart", {
                     state: {
-                      coinName: coin.coinName.toLowerCase(),
+                      coinName: coin.coinName,
                       coinPrice: coin.coinPrice,
-                      userId: userId,
+                      userId: localStorage.getItem(userId),
                     },
                   })
                 }
@@ -110,7 +110,7 @@ function CoinList() {
                     (
                       (currentPrices[coin.coinName] / coin.coinPrice) * 100 -
                       100
-                    ).toFixed(2) > 0
+                    ).toFixed(2) >= 0
                       ? "red"
                       : "blue",
                 }}
