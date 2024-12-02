@@ -93,6 +93,11 @@ const CoinChart = () => {
     }
   }
 
+  const ascendingCoinCount = () => {
+    setCoinCount(coinCount + 1);
+    setCoinPrice(coinPrice + coinData.coinPrice)
+  }
+
   // 매수할 때 실행할 함수
   const buyCoins = async ({userId, coinName, coinPrice, coinCount}) => {
 
@@ -157,26 +162,31 @@ const CoinChart = () => {
 
   return (
     <div>
-      <h2>{coinName.toUpperCase()} 차트</h2>
-      <h3>현재 가격: {coinPrice.toLocaleString()}원</h3>
-      <label>매수, 매도 갯수</label>
-      <input type="text" value={coinCount} maxLength={4} onChange={CoinCountChange}></input>
-      <button onClick={() => {setCoinCount(coinCount + 1)
-        setCoinPrice(coinPrice + coinData.coinPrice);
-      }}>▲</button>
-      <button onClick={descendingCoinCount}>▼</button>
-      <br></br>
-      <button onClick={() => buyCoins({userId, coinName, coinPrice, coinCount})}>매수</button>
-      <button onClick={() => sellCoins({userId, coinName, coinPrice, coinCount})}>매도</button>
-      <div>
-        {/* 버튼 추가 */}
-        <button onClick={() => setTimeRange(1)}>1일</button>
-        <button onClick={() => setTimeRange(7)}>7일</button>
-        <button onClick={() => setTimeRange(30)}>30일</button>
-        <button onClick={() => setTimeRange(365)}>1년</button>
-      </div>
-      {loading ? (<p>차트 데이터를 불러오는 중...</p>) : ( <Line data={chartData} /> )}
-    </div>
+  <h2>{coinName.toUpperCase()} 차트</h2>
+  <h3>현재 가격: {coinPrice.toLocaleString()}원</h3>
+  <label>매수, 매도 갯수</label>
+  <input type="text" value={coinCount} maxLength={4} onChange={CoinCountChange}></input>
+  <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "10px" }}>
+    <button onClick={() => ascendingCoinCount()}>▲</button>
+    <button className="buy-button" onClick={() => buyCoins({ userId, coinName, coinPrice, coinCount })}>매수</button>
+  </div>
+  <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "0px" }}>
+    <button onClick={descendingCoinCount}>▼</button>
+    <button className="sell-button" onClick={() => sellCoins({ userId, coinName, coinPrice, coinCount })}>매도</button>
+  </div>
+  <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginTop: "5px" }}>
+    <button onClick={() => setTimeRange(1)}>1일</button>
+    <button onClick={() => setTimeRange(7)}>7일</button>
+    <button onClick={() => setTimeRange(30)}>30일</button>
+    <button onClick={() => setTimeRange(365)}>1년</button>
+  </div>
+  {loading ? (
+    <p>차트 데이터를 불러오는 중...</p>
+  ) : (
+    <Line data={chartData} />
+  )}
+</div>
+
   );
 };
 

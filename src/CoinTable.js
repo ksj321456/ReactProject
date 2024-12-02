@@ -3,6 +3,7 @@ import axios from "axios";
 import RefreshButton from './RefreshButton';
 import { useLocation, useNavigate } from "react-router-dom";
 import UserInfo from "./UserInfo";
+import './css/CoinTable.css'
 
 const CoinTable = () => {
   const [data, setData] = useState([]);
@@ -79,15 +80,24 @@ const CoinTable = () => {
 
   return (
     <div>
+      <button className="buttone" onClick={() => {
+        localStorage.removeItem(`userId`);
+        navigate('/');
+      }}>로그아웃</button>
       <h1>100개의 코인 테이블 (KRW)</h1>
+      
       <UserInfo userId={userId} nickname={nickname} balance={balance} />
-      <RefreshButton onClick={() => {
+      
+      <RefreshButton  onClick={() => {
         fetchData();
         alert(`코인 데이터를 다시 가져왔습니다.`);
       }} />
-      <button type="button" className="portfolio" onClick={() => navigate('/portfolio')}>
+      <button type="butto" className="portfolio" onClick={() => navigate('/portfolio')}>
                     내 정보
       </button>
+      
+
+   
       <table border="1">
         <thead>
           <tr>
@@ -116,7 +126,7 @@ const CoinTable = () => {
               <td>{crypto.rank}</td>
               <td>{crypto.symbol}</td>
               {/* 가상화폐의 이름을 누르면 해당 가상화폐의 차트 페이지로 이동, 코인 이름, 코인 가격과 함께 userId 전달 */}
-              <td onClick={() => navigate('/chart', {state : {"coinName": crypto.name.toLowerCase(),
+              <td className="coin-link" onClick={() => navigate('/chart', {state : {"coinName": crypto.name.toLowerCase(),
                 "coinPrice": crypto.quotes.KRW.price,
                 "userId": userId
               }})}>{crypto.name}</td>
